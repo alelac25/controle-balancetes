@@ -1,0 +1,6 @@
+git init
+git add .
+git commit -m "Primeira versão do sistema"
+git branch -M main
+git remote add origin https://github.com/alelac25/controle-balancetes.git
+git push -u origin main
