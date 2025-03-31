@@ -1,0 +1,105 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Controle de Balancetes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Controle de Balancetes</h2>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <label for="responsavel">Responsável:</label>
+            <select id="responsavel">
+                <option value="">Todos</option>
+                {% for nome in responsaveis %}
+                <option value="{{ nome }}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="tipo">Tipo:</label>
+            <select id="tipo">
+                <option value="">Todos</option>
+                {% for tipo in tipos %}
+                <option value="{{ tipo }}">{{ tipo }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="envio">Envio:</label>
+            <select id="envio">
+                <option value="">Todos</option>
+                <option value="Enviado">Enviado</option>
+                <option value="Não Enviado">Não Enviado</option>
+            </select>
+        </div>
+
+        <!-- Tabela de Balancetes -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Responsável</th>
+                    <th>Tipo</th>
+                    <th>Mês</th>
+                    <th>MSC REO</th>
+                    <th>RGF</th>
+                    <th>Protocolo TCE</th>
+                    <th>Pendências</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for balancete in balancetes %}
+                <tr>
+                    <td>{{ balancete.responsavel }}</td>
+                    <td>{{ balancete.tipo }}</td>
+                    <td>{{ balancete.mes }}</td>
+                    <td>
+                        <select>
+                            <option value="Não Enviado" {% if not balancete.msc_reo %}selected{% endif %}>Não Enviado</option>
+                            <option value="Enviado" {% if balancete.msc_reo %}selected{% endif %}>Enviado</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select>
+                            <option value="Não Enviado" {% if not balancete.rgf %}selected{% endif %}>Não Enviado</option>
+                            <option value="Enviado" {% if balancete.rgf %}selected{% endif %}>Enviado</option>
+                        </select>
+                    </td>
+                    <td><input type="text" maxlength="8" value="{{ balancete.protocolo_tce }}"></td>
+                    <td><input type="text" maxlength="350" value="{{ balancete.pendencias }}"></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Resumo -->
+        <div class="summary">
+            <p>Total Enviados: <span id="totalEnviados">0</span></p>
+            <p>Total Não Enviados: <span id="totalNaoEnviados">0</span></p>
+            <p>Porcentagem Envio: <span id="percentual">0%</span></p>
+        </div>
+    </div>
+
+    <script>
+        function atualizarResumo() {
+            let enviados = document.querySelectorAll('select option[value="Enviado"]:checked').length;
+            let total = document.querySelectorAll('tbody tr').length;
+            let naoEnviados = total - enviados;
+            let percentual = total > 0 ? ((enviados / total) * 100).toFixed(2) + '%' : '0%';
+
+            document.getElementById('totalEnviados').innerText = enviados;
+            document.getElementById('totalNaoEnviados').innerText = naoEnviados;
+            document.getElementById('percentual').innerText = percentual;
+        }
+
+        document.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', atualizarResumo);
+        });
+
+        atualizarResumo();
+    </script>
+</body>
+</html>
